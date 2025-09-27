@@ -21,110 +21,104 @@ const quizData = [
     }
 ];
 
-
 let currentQuestion = 0;
 let userAnswers = new Array(quizData.length).fill(null);
 
-
 function loadQuestions(index){
-    const quiz_container = document.getElementById('quiz_container');
+    const quiz_container = document.getElementById("quiz_container");
     const quiz_data = quizData[index];
 
+    // Generate options
     let quizOptions = "";
-    for (let option of quiz_data.options) {
-        let checked = (userAnswers[index] === option) ? 'checked' : '';
-
+    for (let option of quiz_data.options){
+        let checked = (userAnswers[index] === option) ? "checked" : "";
         quizOptions += `
-            <label class='custom_radio'>
-                <input type="radio" name="q${index}" value="${option}" ${checked}>
+            <label class="custom-radio">
+                <input class="hidden" type="radio" name="q${index}" value="${option}" ${checked}>
                 <span></span> ${option}
             </label>
         `;
     }
 
-    let buttonHTML = '';
-
+    // Generate buttons
+    let buttonHTML = "";
     if(index > 0){
-        buttonHTML += `
-            <button class="bg-orange-800 text-white" id="prevQuestion">Previous</button>
-        `;
-    }
-    if(index < quizData.length - 1){
-        buttonHTML += `
-            <button class="bg-sky-800 text-white" id="nextQuestion">Next</button>
-        `;
-    }
-    else{
-        buttonHTML += `
-            <button class="bg-sky-800 text-white" id="submitQuiz">Submit</button>
-        `;
+        buttonHTML += `<button class="bg-orange-800 text-white px-3 py-1" id="prevQuestion">Previous</button>`;
     }
 
+    if(index < quizData.length - 1){
+        buttonHTML += `<button class="bg-sky-800 text-white px-3 py-1" id="nextQuestion">Next</button>`;
+    } 
+
+    else{
+        buttonHTML += `<button class="bg-sky-800 text-white px-3 py-1" id="submitQuiz">Submit</button>`;
+    }
+
+    // Insert into DOM
     quiz_container.innerHTML = `
-        <div class="question">${questionData.question}</div>
+        <div class="text-lg mb-5">${quiz_data.question}</div>
         <div class="options">${quizOptions}</div>
-        <div class="buttons">${buttonHTML}</div>
+        <div class="flex justify-between mt-5">${buttonHTML}</div>
     `;
 
     updateProgressBar();
+
+    // Attach event listeners after rendering
+    if(index > 0){
+        document.getElementById("prevQuestion").addEventListener("click", function (){
+            saveAnswer();
+            currentQuestion--;
+            loadQuestions(currentQuestion);
+        });
+    }
+
+    if(index < quizData.length - 1){
+        document.getElementById("nextQuestion").addEventListener("click", function (){
+            saveAnswer();
+            currentQuestion++;
+            loadQuestions(currentQuestion);
+        });
+    } 
+
+    else{
+        document.getElementById("submitQuiz").addEventListener("click", function (){
+            saveAnswer();
+            let score = 0;
+            for (let i = 0; i < quizData.length; i++) {
+                if (userAnswers[i] === quizData[i].answer) {
+                    score++;
+                }
+            }
+            quiz_container.innerHTML = `
+                <div class="text-xl font-bold">
+                    🎉 You scored ${score} out of ${quizData.length}!
+                </div>
+            `;
+            document.getElementById("progress_bar").style.width = "100%";
+        });
+    }
 }
 
-document.getElementById('nextQuestion').addEventListener('click', function(){
-    saveAnswer();
-    if(currentQuestion < quizData.length - 1){
-        currentQuestion++;
-        loadQuestions(currentQuestion);
-    }
-});
-
-
-document.getElementById('prevQuestion').addEventListener('click', function(){
-    saveAnswer();
-    if(currentQuestion > 0){
-        currentQuestion--;
-        loadQuestions(currentQuestion);
-    }
-});
-
-
-function saveAnswer(){
-    const radios = document.getElementsByName('q' + currentQuestion);
+function saveAnswer() {
+    const radios = document.getElementsByName("q" + currentQuestion);
     let selected = null;
 
-    for(let r of radios){
-        if(r.checked){
+    for (let r of radios) {
+        if (r.checked) {
             selected = r;
             break;
         }
     }
 
-    if(selected){
+    if (selected) {
         userAnswers[currentQuestion] = selected.value;
     }
 }
 
-function progressBarUpdate(){
+function updateProgressBar() {
     const progress = ((currentQuestion + 1) / quizData.length) * 100;
-    document.getElementById('progress_bar').style.width = progress + '%';
+    document.getElementById("progress_bar").style.width = progress + "%";
 }
 
-document.getElementById('submitQuiz').addEventListener('click', function(){
-    saveAnswer();
-    let score = 0;
-
-    for(let i=0; i<quizData.length; i++){
-        if(userAnswers[i] === quizData[i].answer){
-            score++;
-        }
-    }
-
-    const quizContent = document.getElementById("quizContent");
-    quizContent.innerHTML = `
-        <div class="result">
-            🎉 You scored ${score} out of ${quizData.length}!
-        </div>
-    `;
-    document.getElementById("progressBar").style.width = "100%";
-});
-
+// Load first question
 loadQuestions(currentQuestion);
