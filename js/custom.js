@@ -87,5 +87,20 @@ document.getElementById('prevQuestion').addEventListener('click', function(){
 });
 
 
+function saveAnswer(){
+    const radios = document.getElementsByName('q' + currentQuestion);
+    let selected = null;
+
+    for(let r of radios){
+        if(r.checked){
+            selected = r;
+            break;
+        }
+    }
+
+    if(selected){
+        userAnswers[currentQuestion] = selected.value;
+    }
+}
 
 loadQuestions(currentQuestion);
