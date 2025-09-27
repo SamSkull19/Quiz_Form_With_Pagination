@@ -103,4 +103,28 @@ function saveAnswer(){
     }
 }
 
+function progressBarUpdate(){
+    const progress = ((currentQuestion + 1) / quizData.length) * 100;
+    document.getElementById('progress_bar').style.width = progress + '%';
+}
+
+document.getElementById('submitQuiz').addEventListener('click', function(){
+    saveAnswer();
+    let score = 0;
+
+    for(let i=0; i<quizData.length; i++){
+        if(userAnswers[i] === quizData[i].answer){
+            score++;
+        }
+    }
+
+    const quizContent = document.getElementById("quizContent");
+    quizContent.innerHTML = `
+        <div class="result">
+            🎉 You scored ${score} out of ${quizData.length}!
+        </div>
+    `;
+    document.getElementById("progressBar").style.width = "100%";
+});
+
 loadQuestions(currentQuestion);
